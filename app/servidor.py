@@ -19,6 +19,13 @@ import basedatos as bd
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "clave-de-pruebas")
 
+
+@app.after_request
+def declarar_stack(respuesta):
+    """El proxy reescribe la cabecera Server; esta sí atraviesa."""
+    respuesta.headers["X-Powered-By"] = "Flask/3.0 (Python 3.12)"
+    return respuesta
+
 SKU = re.compile(r"^[A-Za-z0-9\-]{2,32}$")
 
 
