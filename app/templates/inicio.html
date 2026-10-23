@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inventario — Almacenes Siman</title>
+<style>
+:root{
+  --tinta:#15181d; --azul:#1f3c88; --azul-claro:#eef1fa; --borde:#dce0e8;
+  --gris:#5e6673; --fondo:#f6f7f9; --blanco:#fff; --rojo:#9b2c2c; --ambar:#8a5a12;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fondo);color:var(--tinta);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.5}
+a{color:var(--azul)}
+.barra{background:var(--azul);color:#fff;padding:14px 0}
+.barra .in{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;
+  align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.marca{display:flex;align-items:center;gap:10px}
+.marca .logo{width:34px;height:34px;border-radius:8px;background:#fff;color:var(--azul);
+  display:grid;place-items:center;font-weight:700;font-size:14px}
+.marca b{font-size:17px;letter-spacing:-.01em}
+.marca span{display:block;font-size:12px;opacity:.85;font-weight:400}
+.estado{font-size:12.5px;background:rgba(255,255,255,.16);padding:5px 11px;border-radius:999px}
+.envoltura{max-width:1120px;margin:0 auto;padding:24px 20px 60px}
+.cifras{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px}
+.cifra{background:var(--blanco);border:1px solid var(--borde);border-radius:12px;padding:16px 18px}
+.cifra .rot{font-size:12px;color:var(--gris);text-transform:uppercase;letter-spacing:.04em}
+.cifra .val{font-size:26px;font-weight:650;margin-top:4px;letter-spacing:-.02em}
+.columnas{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px;align-items:start}
+@media(max-width:900px){.columnas{grid-template-columns:1fr}}
+.tarjeta{background:var(--blanco);border:1px solid var(--borde);border-radius:12px;overflow:hidden}
+.tarjeta h2{margin:0;padding:15px 18px;font-size:15.5px;border-bottom:1px solid var(--borde)}
+.tarjeta .cuerpo{padding:18px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--gris);padding:10px 18px;background:#fafbfd;border-bottom:1px solid var(--borde)}
+td{padding:11px 18px;border-bottom:1px solid #eef0f4}
+tr:last-child td{border-bottom:none}
+td.num,th.num{text-align:right}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:var(--gris)}
+.pastilla{display:inline-block;background:var(--azul-claro);color:var(--azul);
+  padding:2px 9px;border-radius:999px;font-size:12px}
+.bajo{color:var(--ambar);font-weight:600}
+label{display:block;margin-bottom:13px}
+label span{display:block;font-size:12.5px;color:var(--gris);margin-bottom:5px}
+input,select{width:100%;padding:9px 11px;border:1px solid var(--borde);border-radius:8px;
+  font-size:14px;font-family:inherit;background:#fff}
+input:focus,select:focus{outline:none;border-color:var(--azul);box-shadow:0 0 0 3px rgba(31,60,136,.12)}
+.btn{display:inline-block;border:none;border-radius:8px;padding:9px 16px;font-size:14px;
+  font-family:inherit;cursor:pointer;text-decoration:none}
+.btn-azul{background:var(--azul);color:#fff}
+.btn-linea{background:#fff;border:1px solid var(--borde);color:var(--tinta)}
+.btn-rojo{background:#fff;border:1px solid #e6cccc;color:var(--rojo);padding:5px 10px;font-size:13px}
+.acciones{display:flex;gap:8px;align-items:center}
+.filtros{display:flex;gap:8px;padding:14px 18px;border-bottom:1px solid var(--borde);flex-wrap:wrap}
+.filtros input{flex:1;min-width:180px}
+.filtros select{width:auto;min-width:150px}
+.aviso{background:#eef7f0;border:1px solid #c4e2cd;color:#1d6b3f;
+  padding:11px 15px;border-radius:10px;margin-bottom:12px;font-size:14px}
+.error{background:#fdf3f3;border:1px solid #e9cccc;color:var(--rojo);
+  padding:11px 15px;border-radius:10px;margin-bottom:12px;font-size:14px}
+.vacio{padding:36px 18px;text-align:center;color:var(--gris)}
+.api{margin-top:22px;background:#15181d;color:#d7dce4;border-radius:12px;padding:18px 20px}
+.api h3{margin:0 0 10px;font-size:14px;color:#fff;font-weight:600}
+.api p{margin:0 0 12px;font-size:13px;color:#9aa3b2}
+.api .ruta{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;
+  display:flex;gap:10px;padding:5px 0;align-items:baseline}
+.api .verbo{display:inline-block;min-width:54px;font-weight:700;font-size:11px;color:#7fd1a0}
+.pie{max-width:1120px;margin:0 auto;padding:16px 20px 0;color:var(--gris);font-size:12.5px}
+</style>
+</head>
+<body>
+
+<div class="barra">
+  <div class="in">
+    <div class="marca">
+      <div class="logo">AS</div>
+      <div>
+        <b>Almacenes Siman</b>
+        <span>Control de inventario</span>
+      </div>
+    </div>
+    <div class="estado">
+      Python / Flask &nbsp;·&nbsp; PostgreSQL {{ estado_bd }}
+    </div>
+  </div>
+</div>
+
+<div class="envoltura">
+
+  {% with mensajes = get_flashed_messages(with_categories=true) %}
+    {% if mensajes %}
+      {% for categoria, texto in mensajes %}
+        <div class="{{ 'error' if categoria == 'error' else 'aviso' }}">{{ texto }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="cifras">
+    <div class="cifra">
+      <div class="rot">Articulos</div>
+      <div class="val">{{ cifras.articulos }}</div>
+    </div>
+    <div class="cifra">
+      <div class="rot">Departamentos</div>
+      <div class="val">{{ cifras.departamentos }}</div>
+    </div>
+    <div class="cifra">
+      <div class="rot">Unidades en existencia</div>
+      <div class="val">{{ "{:,}".format(cifras.unidades) }}</div>
+    </div>
+    <div class="cifra">
+      <div class="rot">Valor del inventario</div>
+      <div class="val">${{ "{:,.2f}".format(cifras.valor|float) }}</div>
+    </div>
+  </div>
+
+  <div class="columnas">
+
+    <div class="tarjeta">
+      <h2>Articulos en inventario</h2>
+
+      <form class="filtros" method="get">
+        <input type="text" name="q" value="{{ busqueda }}"
+               placeholder="Buscar por nombre o SKU">
+        <select name="departamento">
+          <option value="">Todos los departamentos</option>
+          {% for d in departamentos %}
+            <option value="{{ d }}" {% if d == departamento_filtro %}selected{% endif %}>{{ d }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-azul" type="submit">Filtrar</button>
+        {% if busqueda or departamento_filtro %}
+          <a class="btn btn-linea" href="{{ url_for('inicio') }}">Limpiar</a>
+        {% endif %}
+      </form>
+
+      {% if not articulos %}
+        <div class="vacio">
+          {% if busqueda or departamento_filtro %}
+            Ningun articulo coincide con el filtro.
+          {% else %}
+            Todavia no hay articulos en el inventario.
+          {% endif %}
+        </div>
+      {% else %}
+        <table>
+          <thead>
+            <tr>
+              <th>SKU</th><th>Articulo</th><th>Departamento</th>
+              <th class="num">Precio</th><th class="num">Existencias</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for a in articulos %}
+            <tr>
+              <td><code>{{ a.sku }}</code></td>
+              <td>{{ a.nombre }}</td>
+              <td><span class="pastilla">{{ a.departamento }}</span></td>
+              <td class="num">${{ "{:,.2f}".format(a.precio|float) }}</td>
+              <td class="num {% if a.existencias < 20 %}bajo{% endif %}">
+                {{ "{:,}".format(a.existencias) }}
+              </td>
+              <td>
+                <div class="acciones">
+                  <a class="btn btn-linea" style="padding:5px 10px;font-size:13px"
+                     href="{{ url_for('inicio', editar=a.id) }}">Editar</a>
+                  <form method="post" action="{{ url_for('quitar', id_articulo=a.id) }}"
+                        style="margin:0"
+                        onsubmit="return confirm('Retirar este articulo del inventario?')">
+                    <button class="btn btn-rojo" type="submit">Borrar</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+
+    <div class="tarjeta">
+      <h2>{{ 'Editar articulo' if editando else 'Agregar articulo' }}</h2>
+      <div class="cuerpo">
+        <form method="post" action="{{ url_for('guardar') }}">
+          {% if editando %}
+            <input type="hidden" name="id" value="{{ editando.id }}">
+          {% endif %}
+          <label>
+            <span>SKU</span>
+            <input type="text" name="sku" required placeholder="HOG-1003"
+                   value="{{ editando.sku if editando else '' }}">
+          </label>
+          <label>
+            <span>Nombre del articulo</span>
+            <input type="text" name="nombre" required placeholder="Juego de toallas"
+                   value="{{ editando.nombre if editando else '' }}">
+          </label>
+          <label>
+            <span>Departamento</span>
+            <input type="text" name="departamento" list="deptos" required placeholder="Hogar"
+                   value="{{ editando.departamento if editando else '' }}">
+            <datalist id="deptos">
+              {% for d in departamentos %}<option value="{{ d }}">{% endfor %}
+            </datalist>
+          </label>
+          <label>
+            <span>Precio unitario</span>
+            <input type="number" name="precio" step="0.01" min="0" required placeholder="29.90"
+                   value="{{ editando.precio if editando else '' }}">
+          </label>
+          <label>
+            <span>Existencias</span>
+            <input type="number" name="existencias" min="0" required placeholder="25"
+                   value="{{ editando.existencias if editando else '' }}">
+          </label>
+
+          <div class="acciones">
+            <button class="btn btn-azul" type="submit">
+              {{ 'Guardar cambios' if editando else 'Agregar al inventario' }}
+            </button>
+            {% if editando %}
+              <a class="btn btn-linea" href="{{ url_for('inicio') }}">Cancelar</a>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="api">
+    <h3>API REST</h3>
+    <p>La misma informacion esta disponible como servicio, para integrarla con otros sistemas.</p>
+    <div class="ruta"><span class="verbo">GET</span> <a href="/api/articulos" style="color:#9ec5fe">/api/articulos</a></div>
+    <div class="ruta"><span class="verbo">GET</span> <span>/api/articulos/&lt;id&gt;</span></div>
+    <div class="ruta"><span class="verbo">POST</span> <span>/api/articulos</span></div>
+    <div class="ruta"><span class="verbo">PUT</span> <span>/api/articulos/&lt;id&gt;</span></div>
+    <div class="ruta"><span class="verbo">DELETE</span> <span>/api/articulos/&lt;id&gt;</span></div>
+    <div class="ruta"><span class="verbo">GET</span> <a href="/api/resumen" style="color:#9ec5fe">/api/resumen</a></div>
+    <div class="ruta"><span class="verbo">GET</span> <a href="/salud" style="color:#9ec5fe">/salud</a></div>
+  </div>
+</div>
+
+<div class="pie">
+  Aplicacion del inquilino <code>almacenes-siman</code> &nbsp;·&nbsp;
+  Python con Flask y Gunicorn &nbsp;·&nbsp;
+  PostgreSQL {{ version_pg }} &nbsp;·&nbsp;
+  servida por <code>{{ request.host }}</code>
+</div>
+
+</body>
+</html>
